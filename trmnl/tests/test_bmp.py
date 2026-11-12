@@ -1,6 +1,6 @@
 """Host test (CPython) for decode_bmp in ../trmnl.py.
 
-    python3 user_apps/trmnl/tests/test_bmp.py [path/to/real.bmp ...]
+    python3 trmnl/tests/test_bmp.py [path/to/real.bmp ...]
 
 trmnl.py imports MicroPython-only modules, so the function is lifted out of the
 source with ast instead of importing the module.
@@ -11,7 +11,7 @@ import sys
 import unittest
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parent.parent / "trmnl.py"
+SRC = Path(__file__).resolve().parents[2] / "firmware" / "badge" / "apps" / "trmnl.py"
 tree = ast.parse(SRC.read_text())
 wanted = [n for n in tree.body
           if (isinstance(n, ast.FunctionDef) and n.name == "decode_bmp")
