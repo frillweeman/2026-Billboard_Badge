@@ -36,9 +36,10 @@ PLANE_BYTES = WIDTH * HEIGHT // 8
 DEFAULTS = {
     "server": "",           # e.g. "http://192.168.1.10:4567" (no trailing slash)
     "api_key": "",          # filled in by /api/setup
-    "clean_every": 20,      # black/white flash every N new pages, against ghosting
-    "min_refresh": 30,      # never poll faster than this many seconds
+    "clean_every": 60,      # black/white flash every N panel refreshes, against ghosting
+    "min_refresh": 10,      # never poll faster than this many seconds
     "retry": 30,            # wait this long after a failed cycle
+    "keep_wifi_under": 90,  # stay on WiFi between cycles when the refresh interval is below this
 }
 
 
@@ -92,6 +93,7 @@ class TrmnlApp(BaseApp):
         self.cfg = dict(DEFAULTS)
         self.last_filename = None
         self.pages = 0
+        self.battery = 0.0
 
     # ---- app lifecycle -----------------------------------------------------
 
@@ -155,7 +157,9 @@ class TrmnlApp(BaseApp):
 
     async def _cycle(self):
         """One pass: ask the server, fetch the image if it changed, show it. Returns seconds to wait."""
-        battery = self._battery_volts()   # before WiFi: the pin is on ADC2
+        if not (self.nic.active() and self.nic.isconnected()):
+            self.battery = self._battery_volts()   # before WiFi: the pin is on ADC2
+        battery = self.battery
         await self._connect()
         mac = hexlify(self.nic.config("mac"), ":").decode().upper()
         png = None
@@ -169,12 +173,15 @@ class TrmnlApp(BaseApp):
             name = info.get("filename") or url
             if url and name != self.last_filename:
                 png = self._download(url)
-                self.last_filename = name
-        finally:
+        except BaseException:
             self._wifi_off()
+            raise
+        if refresh >= self.cfg["keep_wifi_under"]:
+            self._wifi_off()   # long gap: save power. Short gap: staying joined saves seconds per cycle.
 
         if png is not None:
             await self._show(png)
+            self.last_filename = name   # only once it is really on the panel
         return refresh
 
     # ---- WiFi --------------------------------------------------------------
@@ -271,9 +278,10 @@ class TrmnlApp(BaseApp):
 
     async def _show(self, png):
         panel = self.panel
-        if self.pages and self.pages % self.cfg["clean_every"] == 0:
+        if self.pages >= self.cfg["clean_every"]:
             print("trmnl: periodic clean")
             await panel.restart(wipe=True)
+            self.pages = 0
         panel.clear()
         if png[:2] == b"BM":
             decode_bmp(png, panel.buf)
@@ -284,5 +292,8 @@ class TrmnlApp(BaseApp):
         del png
         gc.collect()
         ms = await panel.show()
-        self.pages += 1
-        print("trmnl: page %d shown in %d ms" % (self.pages, ms))
+        if ms:   # 0 means the picture was identical: the panel was not touched
+            self.pages += 1
+            print("trmnl: panel refreshed in %d ms (%d since last clean)" % (ms, self.pages))
+        else:
+            print("trmnl: picture unchanged, panel left alone")

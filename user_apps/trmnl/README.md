@@ -16,13 +16,13 @@ Needs the `on_exit` hook in `apps/base_app.py` and `lib/app_switcher.py` (so the
 - Set `APP_URL` to the address the badge can reach (it builds `image_url` from it).
 - Enable auto-join so the badge registers itself on its first request, or add a device by hand with the badge's MAC (printed to the serial console as `ID`).
 - Give the device custom dimensions **960 x 672**, 1-bit black and white, and put your pages in its playlist.
-- Refresh interval comes from the server (`refresh_rate`); the badge never polls faster than `min_refresh`.
+- Refresh interval comes from the server (`refresh_rate`); the badge never polls faster than `min_refresh`. For a live board set the device's refresh interval to about 20 s; the panel only refreshes when the picture changes.
 
 ## What it does each cycle
 
 `GET /api/setup` (first run only) -> `GET /api/display` with `ID`, `Access-Token`, `Width`, `Height`, `Battery-Voltage`, `RSSI` -> if `filename` changed, `GET image_url` -> WiFi off -> draw and refresh -> sleep `refresh_rate`.
 
-Every `clean_every` new pages it flashes the panel black then white (about 3 s) to remove ghosting.
+Every `clean_every` panel refreshes (not polls: an identical picture never touches the panel) it flashes the panel black then white (about 3 s) to remove ghosting. When the server's `refresh_rate` is under `keep_wifi_under` seconds it stays on WiFi between cycles instead of rejoining each time.
 
 ## Notes
 
