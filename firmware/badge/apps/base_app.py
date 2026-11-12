@@ -36,3 +36,9 @@ class BaseApp:
     def run(self):
         """Override this with your app behavior. Will be run in a while True loop."""
         pass
+
+    def on_exit(self):
+        """Called once when the user leaves this app for the app menu.
+        Override to stop background tasks or release shared resources
+        (for example the display lock). Must return quickly."""
+        pass
