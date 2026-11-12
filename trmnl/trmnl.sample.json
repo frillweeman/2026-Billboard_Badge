@@ -1,6 +1,6 @@
 {
   "server": "http://192.168.0.17:4567",
-  "clean_every": 60,
+  "clean_every": 15,
   "min_refresh": 10,
   "retry": 30,
   "keep_wifi_under": 90

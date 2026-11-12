@@ -36,7 +36,7 @@ PLANE_BYTES = WIDTH * HEIGHT // 8
 DEFAULTS = {
     "server": "",           # e.g. "http://192.168.1.10:4567" (no trailing slash)
     "api_key": "",          # filled in by /api/setup
-    "clean_every": 60,      # black/white flash every N panel refreshes, against ghosting
+    "clean_every": 15,      # black/white flash every N panel refreshes, against ghosting (~1 refresh a minute)
     "min_refresh": 10,      # never poll faster than this many seconds
     "retry": 30,            # wait this long after a failed cycle
     "keep_wifi_under": 90,  # stay on WiFi between cycles when the refresh interval is below this

@@ -28,8 +28,8 @@ One asyncio task per launch, repeating:
 6. Sleep `refresh_rate` seconds (never less than `min_refresh`). WiFi stays up between
    cycles when `refresh_rate < keep_wifi_under`, otherwise it is switched off.
 
-Every `clean_every` real panel refreshes it flashes black then white (about 3 s) to remove
-ghosting. Leaving the app (a menu button) stops the task and hands the panel back to the
+Every `clean_every` real panel refreshes (about one a minute, because the server's countdowns all change on the minute) it flashes black then white (about 3 s) to remove
+ghosting. If ghosting still builds up between cleans, lower `clean_every`. Leaving the app (a menu button) stops the task and hands the panel back to the
 stock driver through the `BaseApp.on_exit` hook; the last picture stays on screen.
 
 ## Install
@@ -63,7 +63,7 @@ shell quoting slip (a missing `"`) gives `ValueError: syntax error in JSON` on t
 | `min_refresh` | 10 | never poll faster than this many seconds |
 | `retry` | 30 | seconds to wait after a failed cycle |
 | `keep_wifi_under` | 90 | stay on WiFi between cycles when the server's refresh is under this |
-| `clean_every` | 60 | black/white flash every N panel refreshes (not polls) |
+| `clean_every` | 15 | black/white flash every N panel refreshes (not polls) |
 
 ## Server setup (LaraPaper)
 
