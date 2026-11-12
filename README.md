@@ -1,5 +1,21 @@
 ![Billboard_Badge](assets/frame_graphic_demo.png "2026 Hackaday Supercon Billboard Badge")
 
+# Home display fork (TRMNL)
+
+This fork turns the badge into a home display. The only app is `firmware/badge/apps/trmnl.py`,
+a client for the [TRMNL](https://trmnl.com) device protocol: a self-hosted server
+(LaraPaper) renders pages such as bus times into a 960 x 672 black-and-white image and the
+badge shows it with the fast partial refresh driver. All other apps and user apps were
+removed.
+
+- App documentation, setup and troubleshooting: [`trmnl/README.md`](trmnl/README.md)
+- Notes for working on the repo (deploying to the badge, driver rules, gotchas): [`CLAUDE.md`](CLAUDE.md)
+- The server side (bus times and the e-ink layout) is a separate repo, `bustimes`.
+
+The rest of this file is the upstream project README. Where it describes the schedule,
+nametag and gallery apps or says to put new apps in `user_apps/`, that no longer applies to
+this fork.
+
 # Badge Hardware
 The badge uses a 9.7 inch Pervasive Displays E2969JS0B1 electronic paper panel that was recycled from price tags which were destined for a now bankrupt German department store chain, coupled with an ESP32-S3 microcontroller.
 
